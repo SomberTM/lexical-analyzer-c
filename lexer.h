@@ -2,15 +2,14 @@
 #define LEXER_H
 
 typedef enum {
-  If,
-  Else,
+  Number,
+  Ident,
   LeftParen,
   RightParen,
   LeftSquirly,
   RightSquirly,
   DoubleQuote,
   SingleQuote,
-  Ident,
   Equal,
   LessThan,
   GreaterThan,
@@ -22,14 +21,15 @@ typedef enum {
   Plus,
   Hyphen,
   Asterisk,
+  Ampersand,
   ForwardSlash,
   BackwardSlash,
   Underscore,
-  Typedef,
-  Struct,
-  Enum,
-  Extern,
-  Void
+  EoL,
+  EoF,
+  Pipe,
+  Comment,
+  Unknown
 } TokenType;
 
 typedef struct {
