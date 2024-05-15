@@ -149,10 +149,3 @@ void tokenize(Lexer* lexer) {
   fclose(fd);
   fd = NULL;
 }
-
-// First we read a line into an in memory buffer
-// Then we read the line char by char until we reach \n
-// At each char we need to check against our single token matches
-// If it doesnt match then we need another buffer for idents which
-// we add a char to if its not a single token match. We also need to check
-// that buffer each time we add a char for specific keyword tokens such as if, else, etc.
