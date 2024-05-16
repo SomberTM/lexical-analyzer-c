@@ -48,7 +48,7 @@ typedef struct {
   char* target_file_name;
 
   Token** tokens;
-  int num_tokens;
+  size_t num_tokens;
 } Lexer;
 
 extern const char LEXER_CHAR_TOKENS[LEXER_NUM_CHAR_TOKENS];
@@ -58,19 +58,5 @@ extern void destroy_lexer(Lexer*);
 extern void tokenize(Lexer*);
 extern Token* get_token(char*);
 extern int streq(char*, char*);
-
-static inline const char* get_token_str(Token* token) {
-  if (token->value != NULL)
-    return token->value;
-
-  switch (token->type) {
-    case If: return "if";
-    case Equal: return "=";
-    case LeftParen: return "(";
-    case RightParen: return ")";
-    case SemiColon: return ":";
-    default: return "";
-  }
-}
 
 #endif /* LEXER_H */

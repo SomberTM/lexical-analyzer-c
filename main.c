@@ -9,7 +9,7 @@ int main() {
   tokenize(lexer);
   for (int i = 0; i < lexer->num_tokens; i++) {
     Token* token = lexer->tokens[i];
-    printf("Token: %d %s\n", token->type, get_token_str(token));
+    printf("Token: %d %s\n", token->type, token->value);
   }
 
   destroy_lexer(lexer);
