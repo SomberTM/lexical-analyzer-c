@@ -1,9 +1,13 @@
 #ifndef LEXER_H
+
+#include <stddef.h>
+
 #define LEXER_H
 
 #define LEXER_MAX_TOKENS 1024
 #define LEXER_MAX_TOKEN_SIZE 64
 #define LEXER_NUM_CHAR_TOKENS 19
+
 
 typedef enum {
   Number,

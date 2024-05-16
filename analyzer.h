@@ -6,48 +6,45 @@
 #define ANALYZER_MAX_RULES 64
 #define ANALYZER_RULE_MAX_PATTERNS 16
 
-typedef enum {
-  Or,
-  And
-} Condition;
-
-typedef struct {
-  Condition condition;
-  union AnalyzerPattern pattern;
-} AnalyzerConditional;
+typedef union analyzer_pattern AnalyzerPattern;
 
 typedef struct {
   TokenType token_type;
-  AnalyzerConditional* conditional; 
-} ComplexAnalyzerPattern;
+  AnalyzerPattern* pattern; 
+} AnalyzerOrPattern;
 
-typedef union {
+union analyzer_pattern {
   TokenType token_type;
-  ComplexAnalyzerPattern* pattern;
-} AnalyzerPattern;
+  AnalyzerOrPattern* or_pattern;
+};
 
 typedef void (*AnalyzerCallback)(Token**, size_t);
 
 typedef struct {
-  AnalyzerPattern* patterns;
+  AnalyzerPattern** patterns;
   size_t num_patterns;
   AnalyzerCallback callback;
 } AnalyzerRule;
 
 typedef struct {
-  AnalyzerRule* rules;
+  AnalyzerRule** rules;
   size_t num_rules;
 } Analyzer;
 
 extern Analyzer* create_analyzer();
-extern AnalyzerRule* create_rule(Analyzer*);
+extern void destroy_analyzer(Analyzer*);
 
-extern AnalyzerPattern create_pattern(TokenType);
-extern AnalyzerPattern create_pattern(ComplexAnalyzerPattern*);
-extern ComplexAnalyzerPattern* create_or_pattern(TokenType, TokenType);
-extern ComplexAnalyzerPattern* create_or_pattern(TokenType, ComplexAnalyzerPattern*);
-extern ComplexAnalyzerPattern* create_and_pattern(TokenType, TokenType);
-extern ComplexAnalyzerPattern* create_and_pattern(TokenType, ComplexAnalyzerPattern*);
+extern AnalyzerRule* create_rule();
+extern void add_rule(Analyzer*, AnalyzerRule*);
+extern void add_pattern(AnalyzerRule*, AnalyzerPattern*);
 
+extern int check_pattern(AnalyzerPattern*, TokenType);
+extern int check_rule(AnalyzerRule*, Token**, size_t*);
+
+extern AnalyzerPattern* create_basic_pattern(TokenType);
+extern AnalyzerOrPattern* create_basic_or_pattern(TokenType, TokenType);
+extern AnalyzerOrPattern* create_complex_or_pattern(TokenType, AnalyzerOrPattern*);
+
+extern void execute(Analyzer*, Lexer*);
 
 #endif /* ANALYZER_H */

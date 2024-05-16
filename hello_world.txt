@@ -1,7 +1,1 @@
-This is line 1
-And this is line 2
-Hello world at 3
-EOF line :)
-
-if     (x = 5) 
-  print("void");
+print("void")
