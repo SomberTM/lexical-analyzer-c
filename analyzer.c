@@ -42,6 +42,9 @@ void destroy_analyzer(Analyzer* analyzer) {
       free_analyzer_pattern(pattern);
     }
 
+    free(rule->patterns);
+    rule->patterns = NULL;
+
     free(rule);
     rule = NULL;
   }

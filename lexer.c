@@ -52,7 +52,7 @@ void destroy_lexer(Lexer* lexer) {
   lexer = NULL;
 }
 
-inline int streq(char* str, char* target) {
+int streq(char* str, char* target) {
   return !strcmp(str, target);
 }
 

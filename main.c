@@ -27,9 +27,7 @@ int main() {
     printf("Token: %d %s\n", token->type, token->value);
   }
   
-
   Analyzer* analyzer = create_analyzer();
-
 
   AnalyzerRule* rule = create_rule();
   rule->callback = &printCallback;
