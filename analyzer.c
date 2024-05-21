@@ -33,9 +33,12 @@ void free_analyzer_pattern(AnalyzerPattern* pattern) {
 void destroy_analyzer(Analyzer* analyzer) {
   for (size_t i = 0; i < analyzer->num_rules; i++) {
     AnalyzerRule* rule = analyzer->rules[i];
+    if (rule == NULL) continue;
     
-    for (size_t j = 0; j < rule->num_patterns; i++) {
+    for (size_t j = 0; j < rule->num_patterns; j++) {
       AnalyzerPattern* pattern = rule->patterns[j];
+      if (pattern == NULL) continue;
+
       free_analyzer_pattern(pattern);
     }
 
@@ -77,7 +80,39 @@ void add_pattern(AnalyzerRule* rule, AnalyzerPattern* pattern) {
 AnalyzerPattern* create_basic_pattern(TokenType target) {
   AnalyzerPattern* pattern = malloc(sizeof(AnalyzerPattern));
 
+  pattern->or_pattern = NULL;
   pattern->token_type = target;
+  return pattern;
+}
+
+/**
+* Unnecessarily complex
+*/
+AnalyzerPattern* create_basic_or_pattern(TokenType left, TokenType right) {
+  AnalyzerPattern* pattern = malloc(sizeof(AnalyzerPattern));
+  AnalyzerOrPattern* or_pattern = malloc(sizeof(AnalyzerOrPattern)); 
+
+  pattern->or_pattern = or_pattern;
+  or_pattern->token_type = left;
+
+  AnalyzerPattern* or_pattern_pattern = malloc(sizeof(AnalyzerPattern));
+  or_pattern_pattern->or_pattern = NULL;
+  or_pattern_pattern->token_type = right;
+
+  or_pattern->pattern = or_pattern_pattern;
+
+  return pattern;
+}
+
+AnalyzerPattern* create_complex_or_pattern(TokenType left, AnalyzerPattern* right) {
+  AnalyzerPattern* pattern = malloc(sizeof(AnalyzerPattern));
+  AnalyzerOrPattern* or_pattern = malloc(sizeof(AnalyzerOrPattern));
+
+  pattern->or_pattern = or_pattern;
+  
+  or_pattern->token_type = left;
+  or_pattern->pattern = right;
+
   return pattern;
 }
 
@@ -102,9 +137,39 @@ int check_rule(AnalyzerRule* rule, Token** tokens, size_t* depth_ptr) {
   return check_pattern(pattern, token->type) && check_rule(rule, tokens, depth_ptr);
 }
 
+void print_pattern(AnalyzerPattern* pattern) {
+  AnalyzerOrPattern* or_pattern = pattern->or_pattern;
+
+  if (or_pattern != NULL) {
+    printf("(%d || ", or_pattern->token_type);
+    print_pattern(or_pattern->pattern);
+    printf(")");
+
+    return;
+  } 
+
+  printf("%d", pattern->token_type);
+}
+
+void print_rule(AnalyzerRule* rule) {
+  for (size_t i = 0; i < rule->num_patterns; i++) {
+    printf("(");
+    print_pattern(rule->patterns[i]);
+    printf(")");
+
+    if (i < rule->num_patterns - 1)
+      printf(" && ");
+  }
+  printf("\n");
+}
+
 void execute(Analyzer* analyzer, Lexer* lexer) {
   if (lexer->num_tokens == 0 || analyzer->num_rules == 0) return;
 
+  for (size_t i = 0; i < analyzer->num_rules; i++) {
+    AnalyzerRule* rule = analyzer->rules[i];
+    print_rule(rule);
+  }
 
   for (size_t i = 0; i < lexer->num_tokens; i++) {
     Token* token = lexer->tokens[i];

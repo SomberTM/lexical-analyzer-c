@@ -1,12 +1,19 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <sys/syscall.h>
 
 #include "lexer.h"
 #include "analyzer.h"
 
 void printCallback(Token** tokens, size_t num_tokens) {
-  printf("Hi %s\n", tokens[3]->value);
+  Token* to_print = tokens[2];
+
+  if (to_print->type != Unknown || to_print->value == NULL)
+    return;
+
+  syscall(SYS_write, 1, to_print->value, strlen(to_print->value));
 }
 
 int main() {
@@ -27,22 +34,15 @@ int main() {
   AnalyzerRule* rule = create_rule();
   rule->callback = &printCallback;
 
-  add_pattern(rule, create_basic_pattern(Unknown));
-  add_pattern(rule, create_basic_pattern(LeftParen));
-  add_pattern(rule, create_basic_pattern(DoubleQuote));
-  add_pattern(rule, create_basic_pattern(Unknown));
-  add_pattern(rule, create_basic_pattern(DoubleQuote));
-  add_pattern(rule, create_basic_pattern(RightParen));
-  add_rule(analyzer, rule);
+  AnalyzerPattern* quote_pattern = create_basic_or_pattern(DoubleQuote, SingleQuote);
 
-  for (size_t i = 0; i < analyzer->num_rules; i++) {
-    AnalyzerRule* rule = analyzer->rules[i];
-    printf("Rule %ld With %ld Patterns\n", i, rule->num_patterns);
-    for (size_t j = 0; j < rule->num_patterns; j++) {
-      AnalyzerPattern* pattern = rule->patterns[j];
-      printf("Pattern For Token %d\n", pattern->token_type);
-    }
-  }
+  add_pattern(rule, create_basic_pattern(GreaterThan));
+  add_pattern(rule, quote_pattern);
+  add_pattern(rule, create_basic_pattern(Unknown));
+  add_pattern(rule, quote_pattern);
+  add_pattern(rule, create_basic_pattern(SemiColon));
+
+  add_rule(analyzer, rule);
 
   execute(analyzer, lexer);
 
